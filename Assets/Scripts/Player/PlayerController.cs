@@ -1,10 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    [FormerlySerializedAs("moveSpeed")]
+    public float walkSpeed = 5f;
+    public float sprintSpeed = 10f;
     public float turnSpeed = 120f;
 
     private CharacterController characterController;
@@ -21,6 +24,7 @@ public class PlayerController : MonoBehaviour
 
         float moveInput = 0f;
         float turnInput = 0f;
+        bool isSprinting = false;
 
         if (keyboard != null)
         {
@@ -28,9 +32,14 @@ public class PlayerController : MonoBehaviour
                 - (keyboard.sKey.isPressed ? 1f : 0f);
             turnInput = (keyboard.dKey.isPressed ? 1f : 0f)
                 - (keyboard.aKey.isPressed ? 1f : 0f);
+            isSprinting = keyboard.leftShiftKey.isPressed
+                || keyboard.rightShiftKey.isPressed;
         }
 
-        transform.Rotate(Vector3.up, turnInput * turnSpeed * Time.deltaTime);
+        float steeringDirection = moveInput < 0f ? -1f : 1f;
+        float effectiveTurnInput = turnInput * steeringDirection;
+
+        transform.Rotate(Vector3.up, effectiveTurnInput * turnSpeed * Time.deltaTime);
 
         if (characterController.isGrounded && verticalVelocity < 0f)
         {
@@ -39,7 +48,8 @@ public class PlayerController : MonoBehaviour
 
         verticalVelocity += Physics.gravity.y * Time.deltaTime;
 
-        Vector3 velocity = transform.forward * (moveInput * moveSpeed);
+        float currentMoveSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        Vector3 velocity = transform.forward * (moveInput * currentMoveSpeed);
         velocity.y = verticalVelocity;
 
         characterController.Move(velocity * Time.deltaTime);
