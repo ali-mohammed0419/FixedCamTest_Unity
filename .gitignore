@@ -10,3 +10,16 @@ UserSettings/
 
 .vscode/
 .idea/
+
+*.csproj
+*.sln
+*.slnx
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
